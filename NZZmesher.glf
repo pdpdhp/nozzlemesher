@@ -290,13 +290,13 @@ if [pw::Application isInteractive] {
 	grid columnconfigure . 0 -weight 1; grid rowconfigure . 0 -weight 1
 	grid [ttk::labelframe .c.lf -padding "5 5 5 5" -text "SELECT MESH PARAMETERS AND NOZZLE PROFILE"]
 
-	grid [ttk::button .c.lf.cadfl -text "MESHING INPUT" -command meshparametersgui]                           -row 1 -column 1 -sticky e
-	grid [ttk::entry .c.lf.cadfe -width 60 -textvariable MeshParameters]                             -row 1 -column 2 -sticky e
-	grid [ttk::button .c.lf.udftl -text "PROFILE INPUT" -command nzzprofile]        -row 2 -column 1 -sticky e
-	grid [ttk::entry .c.lf.udfte -width 60 -textvariable nprofile]                -row 2 -column 2 -sticky e
+	grid [ttk::button .c.lf.mfl -text "MESHING INPUT" -command meshparametersgui]                           -row 1 -column 1 -sticky e
+	grid [ttk::entry .c.lf.mfe -width 60 -textvariable MeshParameters]                             -row 1 -column 2 -sticky e
+	grid [ttk::button .c.lf.ptl -text "PROFILE INPUT" -command nzzprofile]        -row 2 -column 1 -sticky e
+	grid [ttk::entry .c.lf.pte -width 60 -textvariable nprofile]                -row 2 -column 2 -sticky e
 	grid [ttk::button .c.lf.gob -text "MESH" -command NZZMESHER]                            -row 3 -column 2 -sticky e
 	foreach w [winfo children .c.lf] {grid configure $w -padx 5 -pady 5}
-	focus .c.lf.udftl
+	focus .c.lf.ptl
 	::tk::PlaceWindow . widget
 	bind . <Return> { NZZMESHER }
 
