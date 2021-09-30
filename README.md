@@ -12,5 +12,4 @@ pointwise -b NZZmesher.glf ?MeshParameters.glf? profile.txt <Profile File>
 ```
 GUI
 ---
-.. image:: https://github.com/pdpdhp/nozzlemesher/blob/main/nzzmesherGUI.png
-
+![GUI](https://github.com/pdpdhp/nozzlemesher/blob/main/nzzmesherGUI.png)
