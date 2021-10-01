@@ -240,13 +240,11 @@ if [pw::Application isInteractive] {
 
 	pw::Script loadTK
 
-	set cwd [pwd]
-
 	proc meshparametersgui { } {
 
-		global cwd MeshParameters
+		global scriptDir MeshParameters
 
-		cd $cwd
+		cd $scriptDir
 		if { $MeshParameters == "" } {
 
 			set types {
@@ -254,17 +252,16 @@ if [pw::Application isInteractive] {
  				{{All Files}      *   }
  			}
 
-			set initDir $::cwd
+			set initDir $::scriptDir
 			set fullFilename [tk_getOpenFile -initialdir $initDir -filetypes $types]
 			set MeshParameters [file tail $fullFilename]
-			set cwd [file dirname $MeshParameters]
 		}
 	}
 
 	proc nzzprofile { } {
 
-		global cwd nprofile
-		cd $cwd
+		global scriptDir nprofile
+		cd $scriptDir
 
 		if { $nprofile != "" } {
 
@@ -278,10 +275,9 @@ if [pw::Application isInteractive] {
 				{{All Files}      *  }
 			}
 
-			set initDir $::cwd
+			set initDir $::scriptDir
 			set fullFilename [tk_getOpenFile -initialdir $initDir -filetypes $types]
 			set nprofile [file tail $fullFilename]
-			set cwd [file dirname $nprofile]
 		}
 	}
 
