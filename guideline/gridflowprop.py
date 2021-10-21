@@ -17,6 +17,14 @@ dirname = os.path.dirname(os.path.realpath(__file__))
 Path(f"{dirname}").mkdir(parents=True, exist_ok=True)
 
 #----------------------------GRID GUIDELINE FOR NOZZLE--------------------
+#reynoldsnumbers
+REYNOLDS_NUM = [1.0E6,1.0E6,1.0E6,1.0E6,1.0E6]
+#
+#
+#machnumber
+MACH = [0.9,0.9,0.9,0.9,0.9]
+#
+#
 #TARGET Y PLUS FOR RANS AND HYBRID RANS/LES
 TARG_YPR = [0.04488,0.08977,1.0,3.591,10.181]
 #
@@ -37,7 +45,7 @@ Nw = [56,36,20,12,8]
 UUP = [0.6,0.6,0.6,0.6,0.6]
 #
 #-------------------FLOW PROPERTISE BASED ON THE PAPER BY BRES------------
-
+NUM_LEVR = len(TARG_YPR)
 #-----------------PRESSURE/TEMPERATURE--------------
 #NOZZLE TEMPERATURE RATIO
 NTR=1.15
@@ -45,16 +53,20 @@ NTR=1.15
 NPR=1.7
 
 #-----------------MACH NUMBER-----------------
-M=0.9
+M= np.array(MACH)
 
 #------------------Reynolds No.----------------
-Re = 1000000
+Re = np.array(REYNOLDS_NUM)
 
 #-----------------FREESTREAM PRESSURE (Pa)----------------
-P=101325.0
+PRESSURE = 101325.0
+#
+P = np.zeros(NUM_LEVR) + PRESSURE
 
 #---------------REFERENCE LENGTH---------------
-D=1.0
+Ref_Length = 1.0
+
+D=np.zeros(NUM_LEVR) + Ref_Length
 
 #---------------GAS CONSTANT---------------
 R=8314.4621
@@ -64,7 +76,10 @@ gama=1.4
 #FLOW PROPERTISE BASED ON SUTHERLAND LAW
 #----SUTHERLAND LAW FOR FLOW PROPERTISE----
 mo0 = 1.716e-05
-T0 = 273.15
+TEMP =  273.15
+#
+T0= np.zeros(NUM_LEVR) + TEMP
+
 S = 110.4
 Ts = T0*NTR
 
@@ -136,24 +151,16 @@ CHR_SPC = (uup*D) / (nwave*stno)
 
 axial_csize=np.array(CHR_SPC)
 
-#print (Vs, V, Res, Re1, Cs, C, ros, ro, mos, mo,dssr,dss,uss,us)
-
 #------------------GRID PROPERTISE--------------
 
 NUM_LEVR = len(TARG_YPR)
-
-#number of cells estimation based on the axial spacing till 5D
-#cnum_est_5d = (math.pi*(0.5**2)*5)/(CHR_SPC**3)
-
-#number of cells estimation based on the axial spacing till 30D
-#cnum_est_30d = (math.pi*(0.5**2)*30)/(CHR_SPC**3)
 
 grid_spec=np.column_stack((ypr,dssr,gr,axial_csize[0:NUM_LEVR],stno[0:NUM_LEVR],nwave[0:NUM_LEVR],uup[0:NUM_LEVR]))
 
 #------------------FLOW PROPERTISE--------------
 #FLOW PROPERTISE BASED ON SUTHERLAND | SI
 
-flow_spec_si=np.array([Res,D,P*NPR,Ts,ros,M])
+flow_spec_si=np.column_stack((Res[0:NUM_LEVR],D[0:NUM_LEVR],P[0:NUM_LEVR]*NPR,Ts[0:NUM_LEVR],ros[0:NUM_LEVR],M[0:NUM_LEVR]))
 
 #------------writing files---------------------
 # grid propertise metric
@@ -166,10 +173,11 @@ for i in range(NUM_LEVR):
 f.close()
 
 f = open(f'{dirname}/flow_propertise.txt', 'w')
-f.write("%10s %14s %12s %12s %20s %10s \n" % ("Reynolds","Ref_chord(m)","Pressure(Pa)","Temp(K)","Density(Kg/m3)","Mach"))
+f.write("%10s %14s %12s %12s %20s %10s \n" % ("Reynolds","Ref_length(m)","Pressure(Pa)","Temp(K)","Density(Kg/m3)","Mach"))
 
-f.write("%1.5e  %1.5e %1.7e  %1.7e %1.15e  %1.5e\r\n" % (flow_spec_si[0],flow_spec_si[1],\
-								flow_spec_si[2],flow_spec_si[3],flow_spec_si[4],flow_spec_si[5]))
+for i in range(NUM_LEVR):
+    f.write("%1.5e  %1.5e %1.7e  %1.7e %1.15e  %1.5e\r\n" % (flow_spec_si[i,0],flow_spec_si[i,1],\
+		flow_spec_si[i,2],flow_spec_si[i,3],flow_spec_si[i,4],flow_spec_si[i,5]))
 f.close()
 
 
