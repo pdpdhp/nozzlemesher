@@ -10,17 +10,17 @@ package require PWI_Glyph 3.18.3
 
 proc Config_Prep { } {
 
-	global guidelineDir MeshParameters defParas meshparacol res_lev
-
+	global defset guidelineDir MeshParameters MparafullFilename res_lev
+	
 	if { $MeshParameters != "" } {
 		puts "GRID VARIABLES ARE SET BY $MeshParameters"
-		ParamDefualt $MeshParameters
+		set defset [ParamDefualt $MparafullFilename]
 	} else {
 		puts "DEFAULT GRID VARIABLES ARE SET BY defaultMeshParameters.glf"
 	}
 	
 	#updating gridflow.py with new sets of variables
-	GridFlowprop_Update [lrange $defParas end-4 end] [lrange $meshparacol end-4 end] $guidelineDir
+	GridFlowprop_Update [lrange [lindex $defset 0] end-6 end] [lrange [lindex $defset 1] end-6 end] $guidelineDir
 	
 	MGuideLine $res_lev $guidelineDir
 }
@@ -140,23 +140,23 @@ proc FWH_Update { } {
 
 proc NZZMESHER {} {
 	
-	global MeshParameters nprofile 
+	global MeshParameters nprofile NprofullFilename MparafullFilename
 	global res_lev ypg dsg grg chord_sg
-	global scriptDir fexmod
+	global scriptDir fexmod defset
 	
 	set symsep [string repeat = 105]
 	set symsepd [string repeat . 105]
 	set symsepdd [string repeat - 105]
 	
-	if { $nprofile == "" } {
+	if { $NprofullFilename == "" } {
 		if [pw::Application isInteractive] {
-			set nprofile [tk_getOpenFile]
+			set NprofullFilename [tk_getOpenFile]
 		}
 	}
 
-	if { ! [file readable $nprofile] } {
-		puts "WITHOUT NOZZLE PROFILE AS INPUT THIS SCRIPT DOESN'T WORK."
-		puts "NOZZLE PROFILE: $nprofile does not exist or is not readable"
+	if { ! [file readable $NprofullFilename] } {
+		puts "WITHOUT NOZZLE COORDINATES AS INPUT THIS SCRIPT DOESN'T WORK."
+		puts "NOZZLE COORDINATES: $nprofile does not exist or is not readable"
 		exit -1
 	}
 	
@@ -168,12 +168,15 @@ proc NZZMESHER {} {
 	puts $symsepdd
 	puts "GRID GUIDELINE: Level: $res_lev | Y+: $ypg | Delta_S(m): $dsg | GR: $grg | Nozzle_Spacing(m): $chord_sg"
 	puts $symsep
-
+	
+	set meshparacol [lindex $defset 1]
+	set defParas [lindex $defset 0]
+	
 	set time_start [pwu::Time now]
 
 	#----------------------------------------------------------------------------
 	#READING CAD MODEL
-	CAD_Read [file join $scriptDir "$nprofile"]
+	CAD_Read $NprofullFilename
 
 	#----------------------------------------------------------------------------
 	#CREATING NOZZLE PROFILE
@@ -231,42 +234,54 @@ source [file join $scriptDir "MeshGuideline.glf"]
 source [file join $scriptDir "nozz_mesh.glf"]
 source [file join $scriptDir "cae_exporter.glf"]
 
-ParamDefualt [file join $scriptDir "defaultMeshParameters.glf"]
+set defset [ParamDefualt [file join $scriptDir "defaultMeshParameters.glf"]]
 
 set MeshParameters ""
 set nprofile ""
 
+set MeshParameters ""
+set nprofile ""
+set NprofullFilename ""
+set MparafullFilename ""
+
 if [pw::Application isInteractive] {
 
 	pw::Script loadTK
+	
+	set wkrdir [pwd]
 
 	proc meshparametersgui { } {
 
-		global scriptDir MeshParameters
+		global wkrdir MeshParameters MparafullFilename
+		cd $wkrdir
+		
+		if { $MeshParameters != "" } {
+		
+			file exists $MparafullFilename
+			puts "Input parameters: $MeshParameters"
 
-		cd $scriptDir
-		if { $MeshParameters == "" } {
+		} else {
 
 			set types {
  				{{GLYPH Files}  {.glf}}
  				{{All Files}      *   }
  			}
 
-			set initDir $::scriptDir
-			set fullFilename [tk_getOpenFile -initialdir $initDir -filetypes $types]
-			set MeshParameters [file tail $fullFilename]
+			set initDir $::wkrdir
+			set MparafullFilename [tk_getOpenFile -initialdir $initDir -filetypes $types]
+			set MeshParameters [file tail $MparafullFilename]
 		}
 	}
 
 	proc nzzprofile { } {
 
-		global scriptDir nprofile
-		cd $scriptDir
+		global wkrdir nprofile NprofullFilename
+		cd $wkrdir
 
-		if { $nprofile != "" } {
+		if { $NprofullFilename != "" } {
 
-			validateFile $nprofile exists
-			puts "Nozzle Profile File = $nprofile"
+			file exists $NprofullFilename
+			puts "Input nozzle coordinates: $nprofile"
 
 		} else {
 
@@ -274,40 +289,47 @@ if [pw::Application isInteractive] {
 				{{Text Files}  {.txt}}
 				{{All Files}      *  }
 			}
-
-			set initDir $::scriptDir
-			set fullFilename [tk_getOpenFile -initialdir $initDir -filetypes $types]
-			set nprofile [file tail $fullFilename]
+			
+			set initDir $::wkrdir
+			set NprofullFilename [tk_getOpenFile -initialdir $initDir -filetypes $types]
+			set nprofile [file tail $NprofullFilename]
 		}
 	}
 
 	wm title . "NOZZLE MESHER"
 	grid [ttk::frame .c -padding "5 5 5 5"] -column 0 -row 0 -sticky nwes
 	grid columnconfigure . 0 -weight 1; grid rowconfigure . 0 -weight 1
-	grid [ttk::labelframe .c.lf -padding "5 5 5 5" -text "SELECT MESH PARAMETERS AND NOZZLE PROFILE"]
-
-	grid [ttk::button .c.lf.mfl -text "MESHING INPUT" -command meshparametersgui]                           -row 1 -column 1 -sticky e
-	grid [ttk::entry .c.lf.mfe -width 60 -textvariable MeshParameters]                             -row 1 -column 2 -sticky e
-	grid [ttk::button .c.lf.ptl -text "PROFILE INPUT" -command nzzprofile]        -row 2 -column 1 -sticky e
-	grid [ttk::entry .c.lf.pte -width 60 -textvariable nprofile]                -row 2 -column 2 -sticky e
-	grid [ttk::button .c.lf.gob -text "MESH" -command NZZMESHER]                            -row 3 -column 2 -sticky e
+	grid [ttk::labelframe .c.lf -padding "5 5 5 5" -text "SELECT MESH PARAMETERS"]
+	grid [ttk::button .c.lf.mfl -text "MESHING  INPUT" -command \
+					meshparametersgui]                           -row 1 -column 1 -sticky e
+	grid [ttk::entry .c.lf.mfe -width 60 -textvariable MeshParameters]           -row 1 -column 2 -sticky e
+	grid [ttk::button .c.lf.ptl -text "NOZZLE PROFILE" -command nzzprofile]      -row 2 -column 1 -sticky e
+	grid [ttk::entry .c.lf.pte -width 60 -textvariable nprofile]                 -row 2 -column 2 -sticky e
+	grid [ttk::button .c.lf.gob -text "NOZZLE MESH" -command NZZMESHER]          -row 3 -column 2 -sticky e
+	
 	foreach w [winfo children .c.lf] {grid configure $w -padx 5 -pady 5}
-	focus .c.lf.ptl
+	
+	focus .c.lf.mfl
+	
 	::tk::PlaceWindow . widget
+	
 	bind . <Return> { NZZMESHER }
 
 } else {
 
 	if {[llength $argv] == 2} {
-		set MeshParameters [lindex $argv 0]
-		set nprofile [lindex $argv 1]
+		set MparafullFilename [lindex $argv 0]
+		set NprofullFilename [lindex $argv 1]
+		set nprofile [file tail $NprofullFilename]
+		set MeshParameters [file tail $MparafullFilename]
 	} elseif {[llength $argv] == 1} {
-		set nprofile [lindex $argv 0]
+		set NprofullFilename [lindex $argv 0]
+		set nprofile [file tail $NprofullFilename]
 	} else {
 		puts "Invalid command line input! WITHOUT NOZZLE PROFILE AS INPUT THIS SCRIPT DOESN'T WORK."
 		puts "Usage: pointwise -b NZZmesher.glf ?MeshParameters.glf? nozzle_profile.txt <Profile File>"
 		exit
 	}
-	
+
 	NZZMESHER
 }

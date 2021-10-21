@@ -22,23 +22,23 @@ set GRD_TYP                       STR;# STR (for STRUCTURED)
 set NZZ_BLTK                     0.08;#
 
 #STEPS IN RADIAL DIRECTION
-set NZZ_ROT_STEP                    72;#
+set NZZ_ROT_STEP                   72;#
 
 #SPONGE ZONE
 #------------
 #INSIDE GROWTH RATIO 
-set Sponge_iGR                    1.12;#
+set Sponge_iGR                    1.1;#
 
 #OUTSIDE GROWTH RATIO
-set Sponge_oGR                    1.12;#
+set Sponge_oGR                    1.1;#
 
 #FWH SURFACE SETTING
 #-------------------
 #FWH SURFACE SLOPE
-set FWH_slp                       0.4;#
+set FWH_slp                       0.1;#
 
 #FWH MARKER AXIAL GROWTH RATIO
-set FWH_GR                       1.01;#
+set FWH_GR                      1.008;#
 
 #GROWTH PERCENTAGE OF FWH MARKER GROWTH RATIO AFTER 5D(%)
 set FWH_GRP                      30.0;#
@@ -49,18 +49,24 @@ set FWH_R                         0.6;# FWH_R > 0.51
 #CAE EXPORT:
 #===================================================
 #enables unmarked CAE export 
-set unmarked_export                NO;# (YES/NO)
+set unmarked_export               YES;# (YES/NO)
 
 #enables CAE export with interfaced FWH surface 
-set FWH_winterface_export          NO;# (YES/NO)
+set FWH_winterface_export         YES;# (YES/NO)
 
 #CAE SOLVER SELECTION.
 set cae_solver                    SU2;# FWHMarker.tcl script works only with SU2 format
 
 #SAVES NATIVE FORMATS 
-set save_native                    NO;# (YES/NO)
+set save_native                   YES;# (YES/NO)
 
 #-------------------------------------- GRID GUIDELINE--------------------------------------
+
+#REYNOLDS NUMBER
+set REYNOLDS_NUM                          {1.0E6,1.0E6,1.0E6,1.0E6,1.0E6}
+
+#MACH NUMBER
+set MACH                                            {0.9,0.9,0.9,0.9,0.9}
 
 #TARGET Y PLUS FOR RANS AND HYBRID RANS/LES
 set TARG_YPR                           {0.04488,0.08977,1.0,3.591,10.181}

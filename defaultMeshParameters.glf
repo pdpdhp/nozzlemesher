@@ -27,10 +27,10 @@ set NZZ_ROT_STEP                   72;#
 #SPONGE ZONE
 #------------
 #INSIDE GROWTH RATIO 
-set Sponge_iGR                    1.1;#
+set Sponge_iGR                   1.25;#
 
 #OUTSIDE GROWTH RATIO
-set Sponge_oGR                    1.1;#
+set Sponge_oGR                   1.25;#
 
 #FWH SURFACE SETTING
 #-------------------
@@ -41,7 +41,7 @@ set FWH_slp                       0.1;#
 set FWH_GR                      1.008;#
 
 #GROWTH PERCENTAGE OF FWH MARKER GROWTH RATIO AFTER 5D(%)
-set FWH_GRP                      10.0;#
+set FWH_GRP                       0.0;#
 
 #FWH Surface Approx Redius From (0,0,0) at Outlet
 set FWH_R                       0.515;# FWH_R > 0.51
@@ -61,6 +61,12 @@ set cae_solver                    SU2;# FWHMarker.tcl script works only with SU2
 set save_native                   YES;# (YES/NO)
 
 #-------------------------------------- GRID GUIDELINE--------------------------------------
+
+#REYNOLDS NUMBER
+set REYNOLDS_NUM                          {1.0E6,1.0E6,1.0E6,1.0E6,1.0E6}
+
+#MACH NUMBER
+set MACH                                            {0.9,0.9,0.9,0.9,0.9}
 
 #TARGET Y PLUS FOR RANS AND HYBRID RANS/LES
 set TARG_YPR                           {0.04488,0.08977,1.0,3.591,10.181}
