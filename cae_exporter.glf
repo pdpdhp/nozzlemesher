@@ -12,6 +12,7 @@ proc CAE_Export {blk} {
 	global FWH_winterface_export save_native scriptDir
 	global gridname gridnameFWHint gridnameFWHmrk
 	global nozz_upfront_con FWH_R D_blkright D_blkleft
+	global domBCs blkBCs
 	
 	upvar 1 cae_solver cae_fmt
 	upvar 1 symsepdd asep
@@ -21,199 +22,25 @@ proc CAE_Export {blk} {
 	# creating general boundary conditions
 	set bcnozz [pw::BoundaryCondition create]
 		$bcnozz setName nozzle
-	set bcfarfield [pw::BoundaryCondition create]
-		$bcfarfield setName farfield
+	set bcfarfield1 [pw::BoundaryCondition create]
+		$bcfarfield1 setName farfield1
+	set bcfarfield2 [pw::BoundaryCondition create]
+		$bcfarfield2 setName farfield2
+	set bcfarfield3 [pw::BoundaryCondition create]
+		$bcfarfield3 setName farfield3
 	set bcinlet [pw::BoundaryCondition create]
 		$bcinlet setName inlet
 
-	#assigning BCs
-	#CAE Boundary Condition
-	set domNOZZqbc []
-	set blkNOZZqbc []
-	set domFARFIELDqbc []
-	set blkFARFIELDqbc []
-	set domINLETqbc []
-	set blkINLETqbc []
-
-	array set dommNOZZqbc []
-	array set dommFARFIELDqbc []
-	array set dommINLETqbc []
-
-	for {set k 1} {$k<=[llength $blk]} {incr k} {
-		set dommNOZZqbc($k) []
-		set dommFARFIELDqbc($k) []
-		set dommINLETqbc($k) []
-	}
-
-	# finding proper domains and blocks corresponding to BCs
-	#block 0
-	set dommNOZZqbc(1) [[[lindex $blk 0] getFace 3] getDomains]
-	set dommINLETqbc(1) [[[lindex $blk 0] getFace 4] getDomains]
-
-	foreach ent $dommNOZZqbc(1) {
-		lappend domNOZZqbc $ent
-		lappend blkNOZZqbc [lindex $blk 0]
-	}
-
-	foreach ent $dommINLETqbc(1) {
-		lappend domINLETqbc $ent
-		lappend blkINLETqbc [lindex $blk 0]
-	}
-
-	#block 1
-	set dommNOZZqbc(2) [[[lindex $blk 1] getFace 3] getDomains]
-	set dommINLETqbc(2) [[[lindex $blk 1] getFace 4] getDomains]
-
-	foreach ent $dommNOZZqbc(2) {
-		lappend domNOZZqbc $ent
-		lappend blkNOZZqbc [lindex $blk 1]
-	}
-
-	foreach ent $dommINLETqbc(2) {
-		lappend domINLETqbc $ent
-		lappend blkINLETqbc [lindex $blk 1]
-	}
-
-	#block 2
-	set dommINLETqbc(3) [[[lindex $blk 2] getFace 2] getDomains]
-
-	foreach ent $dommINLETqbc(3) {
-		lappend domINLETqbc $ent
-		lappend blkINLETqbc [lindex $blk 2]
-	}
-
-	#block 3
-	set dommFARFIELDqbc(1) [[[lindex $blk 3] getFace 5] getDomains]
-
-	foreach ent $dommFARFIELDqbc(1) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 3]
-	}
-
-	#block 3
-	set dommFARFIELDqbc(2) [[[lindex $blk 3] getFace 2] getDomains]
-
-	foreach ent $dommFARFIELDqbc(2) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 3]
-	}
-
-	#block 3
-	set dommNOZZqbc(3) [[[lindex $blk 3] getFace 3] getDomains]
-
-	foreach ent $dommNOZZqbc(3) {
-		lappend domNOZZqbc $ent
-		lappend blkNOZZqbc [lindex $blk 3]
-	}
-
-	#block 4
-	set dommFARFIELDqbc(3) [[[lindex $blk 4] getFace 5] getDomains]
-
-	foreach ent $dommFARFIELDqbc(3) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 4]
-	}
-
-	#block 4
-	set dommFARFIELDqbc(3) [[[lindex $blk 4] getFace 2] getDomains]
-
-	foreach ent $dommFARFIELDqbc(3) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 4]
-	}
-
-	#block 4
-	set dommNOZZqbc(4) [[[lindex $blk 4] getFace 3] getDomains]
-
-	foreach ent $dommNOZZqbc(4) {
-		lappend domNOZZqbc $ent
-		lappend blkNOZZqbc [lindex $blk 4]
-	}
-
-	#block 9
-	set dommFARFIELDqbc(3) [[[lindex $blk 9] getFace 4] getDomains]
-	set dommNOZZqbc(5) [[[lindex $blk 9] getFace 6] getDomains]
-
-	foreach ent $dommFARFIELDqbc(3) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 9]
-	}
-
-	lappend domNOZZqbc [lindex $dommNOZZqbc(5) 1]
-	lappend blkNOZZqbc [lindex $blk 9]
-
-	#block 10
-	set dommFARFIELDqbc(4) [[[lindex $blk 10] getFace 4] getDomains]
-	set dommNOZZqbc(6) [[[lindex $blk 10] getFace 6] getDomains]
-
-	foreach ent $dommFARFIELDqbc(4) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 10]
-	}
-
-	lappend domNOZZqbc [lindex $dommNOZZqbc(6) 1]
-	lappend blkNOZZqbc [lindex $blk 10]
-
-	#block 11
-	set dommFARFIELDqbc(5) [[[lindex $blk 11] getFace 6] getDomains]
-
-	foreach ent $dommFARFIELDqbc(5) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 11]
-	}
-
-	#block 12
-	set dommFARFIELDqbc(6) [[[lindex $blk 12] getFace 6] getDomains]
-
-	foreach ent $dommFARFIELDqbc(6) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 12]
-	}
-
-	#block 13
-	set dommFARFIELDqbc(7) [[[lindex $blk 13] getFace 3] getDomains]
-
-	foreach ent $dommFARFIELDqbc(7) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 13]
-	}
-
-	#block 14
-	set dommFARFIELDqbc(8) [[[lindex $blk 13] getFace 2] getDomains]
-
-	foreach ent $dommFARFIELDqbc(8) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 13]
-	}
-
-	#block 15
-	set dommFARFIELDqbc(9) [[[lindex $blk 14] getFace 3] getDomains]
-
-	foreach ent $dommFARFIELDqbc(9) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 14]
-	}
-
-	#block 16
-	set dommFARFIELDqbc(10) [[[lindex $blk 14] getFace 2] getDomains]
-
-	foreach ent $dommFARFIELDqbc(10) {
-		lappend domFARFIELDqbc $ent
-		lappend blkFARFIELDqbc [lindex $blk 14]
-	}
-
 	#assigning domains to BCs
-	foreach domain $domNOZZqbc block $blkNOZZqbc {
-		$bcnozz apply [list [list $block $domain]]
-	}
+	foreach domain $domBCs(0) block $blkBCs(0) {$bcnozz apply [list [list $block $domain]]}
 
-	foreach domain $domINLETqbc block $blkINLETqbc {
-		$bcinlet apply [list [list $block $domain]]
-	}
+	foreach domain $domBCs(1) block $blkBCs(1) {$bcinlet apply [list [list $block $domain]]}
 
-	foreach domain $domFARFIELDqbc block $blkFARFIELDqbc {
-		$bcfarfield apply [list [list $block $domain]]
-	}
+	foreach domain $domBCs(2) block $blkBCs(2) {$bcfarfield1 apply [list [list $block $domain]]}
+	
+	foreach domain $domBCs(3) block $blkBCs(3) {$bcfarfield2 apply [list [list $block $domain]]}
+	
+	foreach domain $domBCs(4) block $blkBCs(4) {$bcfarfield3 apply [list [list $block $domain]]}
 
 	#examine
 	set blkexm [pw::Examine create BlockVolume]

@@ -11,11 +11,16 @@ proc Nozzle_Mesh {} {
 	global nx_node ny_node nozzUpperCurve nozzLowerCurve nozzTeCurve nozzLowerCurve_sp
 	global NZZ_BLTK NZZ_ROT_STEP Sponge_iGR Sponge_oGR FWH_slp FWH_GR FWH_GRP res_lev
 	global nozz_upfront_con FWH_R D_blkright D_blkleft cae_solver
+	global domBCs blkBCs
 	
 	upvar 1 grg NZZ_IN_GR
 	upvar 1 dsg NZZ_DS
 	upvar 1 chord_sg NZZ_IN_SPC
 	upvar 1 GRD_TYP grid_type
+	
+	# collecting boundaries as it builds
+	array set domBCs []
+	array set blkBCs []
 	
 	#--------------------------------------------------
 
@@ -90,6 +95,17 @@ proc Nozzle_Mesh {} {
 	set nzz_BLblk_lcon1 [[[[lindex $nzz_BLblk_sp 1] getFace 4] getEdge 2] getConnector 1]
 	set nzz_BLblk_lcon2 [[[[lindex $nzz_BLblk_sp 1] getFace 2] getEdge 4] getConnector 1]
 
+	#collecting BC | Nozzle
+	lappend domBCs(0) [[[lindex $nzz_BLblk_sp 0] getFace 3] getDomain 1]
+	lappend blkBCs(0) [lindex $nzz_BLblk_sp 0]
+	lappend domBCs(0) [[[lindex $nzz_BLblk_sp 1] getFace 3] getDomain 1]
+	lappend blkBCs(0) [lindex $nzz_BLblk_sp 1]
+
+	#collecting BC | Inlet
+	lappend domBCs(1) [[[lindex $nzz_BLblk_sp 0] getFace 4] getDomain 1]
+	lappend blkBCs(1) [lindex $nzz_BLblk_sp 0]
+	lappend domBCs(1) [[[lindex $nzz_BLblk_sp 1] getFace 4] getDomain 1]
+        lappend blkBCs(1) [lindex $nzz_BLblk_sp 1]
 
 	# DOM AT INLET
 	#-------------------------------------------------------------------------------------
@@ -182,6 +198,20 @@ proc Nozzle_Mesh {} {
 									[lindex $inn_nzz_doml_sp 1]\
 									[lindex $inn_nzz_doml_sp 2]\
 									$nzz_in_dom $nzz_out_dom]]
+	
+	#collecting BC | Nozzle
+	lappend domBCs(0) [[$inn_nzz_blk getFace 2] getDomain 1]
+	lappend blkBCs(0) $inn_nzz_blk
+	lappend domBCs(0) [[$inn_nzz_blk getFace 4] getDomain 1]
+	lappend blkBCs(0) $inn_nzz_blk
+	lappend domBCs(0) [[$inn_nzz_blk getFace 5] getDomain 1]
+	lappend blkBCs(0) $inn_nzz_blk
+	lappend domBCs(0) [[$inn_nzz_blk getFace 6] getDomain 1]
+	lappend blkBCs(0) $inn_nzz_blk
+	
+	#collecting BC | inlet
+	lappend domBCs(1) [[$inn_nzz_blk getFace 3] getDomain 1]
+	lappend blkBCs(1) $inn_nzz_blk
 
 	# ----------------------------------------- NOZZLE UP ---------------------------------
 
@@ -305,6 +335,32 @@ proc Nozzle_Mesh {} {
 
 	set nzz_innblk_rcon [[[[lindex $nzz_BLblk_sp 0] getFace 2] getEdge 2] getConnector 1]
 	set nzz_innblk_lcon [[[[lindex $nzz_BLblk_sp 1] getFace 2] getEdge 2] getConnector 1]
+
+
+	#collecting BC | Nozzle
+	lappend domBCs(0) [[[lindex $nzz_outblk_sp 0] getFace 3] getDomain 1]
+	lappend blkBCs(0) [lindex $nzz_outblk_sp 0]
+	
+	#collecting BC | far1
+	lappend domBCs(2) [[[lindex $nzz_outblk_sp 0] getFace 2] getDomain 1]
+	lappend blkBCs(2) [lindex $nzz_outblk_sp 0]
+
+	#collecting BC | far2
+	lappend domBCs(3) [[[lindex $nzz_outblk_sp 0] getFace 5] getDomain 1]
+	lappend blkBCs(3) [lindex $nzz_outblk_sp 0]
+
+
+	#collecting BC | Nozzle
+	lappend domBCs(0) [[[lindex $nzz_outblk_sp 1] getFace 3] getDomain 1]
+	lappend blkBCs(0) [lindex $nzz_outblk_sp 1]
+	
+	#collecting BC | far1
+	lappend domBCs(2) [[[lindex $nzz_outblk_sp 1] getFace 2] getDomain 1]
+	lappend blkBCs(2) [lindex $nzz_outblk_sp 1]
+
+	#collecting BC | far2
+	lappend domBCs(3) [[[lindex $nzz_outblk_sp 1] getFace 5] getDomain 1]
+	lappend blkBCs(3) [lindex $nzz_outblk_sp 1]
 
 	# edge connector top
 	set edgtop_seg [pw::SegmentSpline create]
@@ -603,6 +659,22 @@ proc Nozzle_Mesh {} {
 			[list $D_sidel $D_side $D_sidel1 $D_sideb $nzz_tck_bot\
 			[[[lindex $nzz_outblk_sp 1] getFace 4] getDomain 1] [lindex $far_dom_sp 1]]]
 
+	#collecting BC | far2
+	lappend domBCs(3) [[$D_blkright getFace 4] getDomain 1]
+	lappend blkBCs(3) $D_blkright
+	
+	#collecting BC | nozzle
+	lappend domBCs(0) [[$D_blkright getFace 2] getDomain 2]
+	lappend blkBCs(0) $D_blkright
+	
+	#collecting BC | far2
+	lappend domBCs(3) [[$D_blkleft getFace 4] getDomain 1]
+	lappend blkBCs(3) $D_blkleft
+	
+	#collecting BC | nozzle
+	lappend domBCs(0) [[$D_blkleft getFace 2] getDomain 2]
+	lappend blkBCs(0) $D_blkleft
+
 	# THIRD PART
 	#-----------------------------------------------------------------------------
 	# examine edge length
@@ -630,6 +702,14 @@ proc Nozzle_Mesh {} {
 	$corejet_blk2 setExtrusionSolverAttribute TranslateDistance 20
 	$corejet_extr run [expr int(floor(20/$corejet_edg_value))]
 	$corejet_extr end
+	
+	#collecting BC | far3
+	lappend domBCs(4) [[$corejet_blk1 getFace 6] getDomain 1]
+	lappend blkBCs(4) $corejet_blk1
+
+	#collecting BC | far3
+	lappend domBCs(4) [[$corejet_blk2 getFace 6] getDomain 1]
+	lappend blkBCs(4) $corejet_blk2
 
 	set DD_front_seg [pw::SegmentSpline create]
 	$DD_front_seg addPoint [[[lindex $nzz_far_con_sp 1] getNode End] getXYZ]
@@ -663,6 +743,22 @@ proc Nozzle_Mesh {} {
 	$DD_outblk_extr end
 
 	set DD_outblk_sp [$DD_outblk split -K [expr int(floor($NZZ_ROT_STEP/2))+1]]
+	
+	#collecting BC | far2
+	lappend domBCs(3) [[[lindex $DD_outblk_sp 0] getFace 3] getDomain 1]
+	lappend blkBCs(3) [lindex $DD_outblk_sp 0]
+
+	#collecting BC | far3
+	lappend domBCs(4) [[[lindex $DD_outblk_sp 0] getFace 2] getDomain 1]
+        lappend blkBCs(4) [lindex $DD_outblk_sp 0]
+
+	#collecting BC | far2
+	lappend domBCs(3) [[[lindex $DD_outblk_sp 1] getFace 3] getDomain 1]
+	lappend blkBCs(3) [lindex $DD_outblk_sp 1]
+
+	#collecting BC | far3
+	lappend domBCs(4) [[[lindex $DD_outblk_sp 1] getFace 2] getDomain 1]
+        lappend blkBCs(4) [lindex $DD_outblk_sp 1]
 
 	set dashes [string repeat - 70]
 
