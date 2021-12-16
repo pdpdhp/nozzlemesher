@@ -27,10 +27,10 @@ set NZZ_ROT_STEP                   72;#
 #SPONGE ZONE
 #------------
 #INSIDE GROWTH RATIO 
-set Sponge_iGR                    1.1;#
+set Sponge_iGR                   1.45;#
 
 #OUTSIDE GROWTH RATIO
-set Sponge_oGR                    1.1;#
+set Sponge_oGR                   1.45;#
 
 #FWH SURFACE SETTING
 #-------------------
@@ -41,7 +41,7 @@ set FWH_slp                       0.1;#
 set FWH_GR                      1.008;#
 
 #GROWTH PERCENTAGE OF FWH MARKER GROWTH RATIO AFTER 5D(%)
-set FWH_GRP                      30.0;#
+set FWH_GRP                      50.0;#
 
 #FWH Surface Approx Redius From (0,0,0) at Outlet
 set FWH_R                         0.6;# FWH_R > 0.51
@@ -49,16 +49,16 @@ set FWH_R                         0.6;# FWH_R > 0.51
 #CAE EXPORT:
 #===================================================
 #enables unmarked CAE export 
-set unmarked_export               YES;# (YES/NO)
+set unmarked_export                YES;# (YES/NO)
 
 #enables CAE export with interfaced FWH surface 
-set FWH_winterface_export         YES;# (YES/NO)
+set FWH_winterface_export          YES;# (YES/NO)
 
 #CAE SOLVER SELECTION.
-set cae_solver                    SU2;# FWHMarker.tcl script works only with SU2 format
+set cae_solver                     SU2;# FWHMarker.tcl script works only with SU2 format
 
 #SAVES NATIVE FORMATS 
-set save_native                   YES;# (YES/NO)
+set save_native                    YES;# (YES/NO)
 
 #-------------------------------------- GRID GUIDELINE--------------------------------------
 

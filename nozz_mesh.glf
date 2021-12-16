@@ -199,16 +199,6 @@ proc Nozzle_Mesh {} {
 									[lindex $inn_nzz_doml_sp 2]\
 									$nzz_in_dom $nzz_out_dom]]
 	
-	#collecting BC | Nozzle
-	lappend domBCs(0) [[$inn_nzz_blk getFace 2] getDomain 1]
-	lappend blkBCs(0) $inn_nzz_blk
-	lappend domBCs(0) [[$inn_nzz_blk getFace 4] getDomain 1]
-	lappend blkBCs(0) $inn_nzz_blk
-	lappend domBCs(0) [[$inn_nzz_blk getFace 5] getDomain 1]
-	lappend blkBCs(0) $inn_nzz_blk
-	lappend domBCs(0) [[$inn_nzz_blk getFace 6] getDomain 1]
-	lappend blkBCs(0) $inn_nzz_blk
-	
 	#collecting BC | inlet
 	lappend domBCs(1) [[$inn_nzz_blk getFace 3] getDomain 1]
 	lappend blkBCs(1) $inn_nzz_blk
@@ -336,7 +326,6 @@ proc Nozzle_Mesh {} {
 	set nzz_innblk_rcon [[[[lindex $nzz_BLblk_sp 0] getFace 2] getEdge 2] getConnector 1]
 	set nzz_innblk_lcon [[[[lindex $nzz_BLblk_sp 1] getFace 2] getEdge 2] getConnector 1]
 
-
 	#collecting BC | Nozzle
 	lappend domBCs(0) [[[lindex $nzz_outblk_sp 0] getFace 3] getDomain 1]
 	lappend blkBCs(0) [lindex $nzz_outblk_sp 0]
@@ -348,7 +337,6 @@ proc Nozzle_Mesh {} {
 	#collecting BC | far2
 	lappend domBCs(3) [[[lindex $nzz_outblk_sp 0] getFace 5] getDomain 1]
 	lappend blkBCs(3) [lindex $nzz_outblk_sp 0]
-
 
 	#collecting BC | Nozzle
 	lappend domBCs(0) [[[lindex $nzz_outblk_sp 1] getFace 3] getDomain 1]

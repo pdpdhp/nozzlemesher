@@ -3,9 +3,9 @@ set scriptDir [file dirname [info script]]
 set exportDir [file join $scriptDir grids]
 file mkdir $exportDir
 set res_lev 4
-set unmarked lev4_9m335k.su2
-set interfaced lev4_9m335k_FWHinterface.su2
-set gridunmarked lev4_9m335k_FWHmarked.su2
+set unmarked lev4_5m225k.su2
+set interfaced lev4_5m225k_FWHinterface.su2
+set gridunmarked lev4_5m225k_FWHmarked.su2
 
 set symsep1 [string repeat = 70]
 set symsep2 [string repeat - 70]
